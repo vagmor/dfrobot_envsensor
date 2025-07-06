@@ -2,26 +2,45 @@ import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import i2c, sensor
 from esphome.const import (
-    CONF_ID, CONF_TEMPERATURE, CONF_HUMIDITY, CONF_PRESSURE,
-    UNIT_CELSIUS, UNIT_PERCENT, UNIT_HECTOPASCAL, UNIT_LUX, UNIT_EMPTY, UNIT_METER,
-    DEVICE_CLASS_TEMPERATURE, DEVICE_CLASS_HUMIDITY, DEVICE_CLASS_PRESSURE,
-    DEVICE_CLASS_ILLUMINANCE, DEVICE_CLASS_EMPTY, DEVICE_CLASS_DISTANCE,
-    STATE_CLASS_MEASUREMENT
+    CONF_ID,
+    CONF_ADDRESS,
+    CONF_UPDATE_INTERVAL,
+    CONF_TEMPERATURE,
+    CONF_HUMIDITY,
+    CONF_PRESSURE,
+    UNIT_CELSIUS,
+    UNIT_PERCENT,
+    UNIT_HECTOPASCAL,
+    UNIT_LUX,
+    UNIT_METER,
+    UNIT_EMPTY,
+    DEVICE_CLASS_TEMPERATURE,
+    DEVICE_CLASS_HUMIDITY,
+    DEVICE_CLASS_PRESSURE,
+    DEVICE_CLASS_ILLUMINANCE,
+    DEVICE_CLASS_DISTANCE,
+    DEVICE_CLASS_EMPTY,
+    STATE_CLASS_MEASUREMENT,
 )
 
+# Custom config keys for this component
 CONF_LIGHT = "light"
 CONF_UV_INDEX = "uv_index"
 CONF_ELEVATION = "elevation"
+CONF_UV_GAIN = "uv_gain"
+CONF_UV_RESOLUTION = "uv_resolution"
+CONF_UV_RATE = "uv_rate"
 
-AUTO_LOAD = ["sensor"]
-
+# Load the C++ namespace
 dfrobot_envsensor_ns = cg.esphome_ns.namespace("dfrobot_envsensor")
 DFRobotEnvSensor = dfrobot_envsensor_ns.class_(
     "DFRobotEnvSensor", cg.PollingComponent, i2c.I2CDevice
 )
 
+# Schema definition
 CONFIG_SCHEMA = cv.Schema({
     cv.GenerateID(): cv.declare_id(DFRobotEnvSensor),
+    cv.Optional(CONF_ADDRESS, default=0x22): cv.i2c_address,
     cv.Optional(CONF_TEMPERATURE): sensor.sensor_schema(
         unit_of_measurement=UNIT_CELSIUS,
         icon="mdi:thermometer",
@@ -64,10 +83,14 @@ CONFIG_SCHEMA = cv.Schema({
         device_class=DEVICE_CLASS_DISTANCE,
         state_class=STATE_CLASS_MEASUREMENT,
     ),
-    cv.Required("update_interval"): cv.update_interval,
+    # Optional UV sensor configuration (0-255)
+    cv.Optional(CONF_UV_GAIN): cv.int_range(min=0, max=255),
+    cv.Optional(CONF_UV_RESOLUTION): cv.int_range(min=0, max=255),
+    cv.Optional(CONF_UV_RATE): cv.int_range(min=0, max=255),
+    cv.Required(CONF_UPDATE_INTERVAL): cv.update_interval,
 }).extend(i2c.i2c_device_schema(None))
 
-
+# Conversion to code
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
@@ -97,4 +120,12 @@ async def to_code(config):
         sens = await sensor.new_sensor(config[CONF_ELEVATION])
         cg.add(var.set_elevation_sensor(sens))
 
-    cg.add(var.set_update_interval(config["update_interval"]))
+    # Pass through any UV configuration settings
+    if CONF_UV_GAIN in config:
+        cg.add(var.set_uv_gain(config[CONF_UV_GAIN]))
+    if CONF_UV_RESOLUTION in config:
+        cg.add(var.set_uv_resolution(config[CONF_UV_RESOLUTION]))
+    if CONF_UV_RATE in config:
+        cg.add(var.set_uv_rate(config[CONF_UV_RATE]))
+
+    cg.add(var.set_update_interval(config[CONF_UPDATE_INTERVAL]))

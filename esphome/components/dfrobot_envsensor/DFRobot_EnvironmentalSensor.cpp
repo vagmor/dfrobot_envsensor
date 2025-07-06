@@ -195,6 +195,46 @@ uint8_t DFRobot_EnvironmentalSensor::readReg(uint16_t reg, void *pBuf, uint8_t s
     return readInputRegister(_addr, reg, _pBuf, size);
   }
 }
+void DFRobot_EnvironmentalSensor::setUVGain(uint8_t gain) {
+  uint8_t data[1] = { gain };
+  writeReg(REG_UV_GAIN, data, 1);
+}
+
+void DFRobot_EnvironmentalSensor::setUVResolution(uint8_t resolution) {
+  uint8_t data[1] = { resolution };
+  writeReg(REG_UV_RESOLUTION, data, 1);
+}
+
+void DFRobot_EnvironmentalSensor::setUVMeasurementRate(uint8_t rate) {
+  uint8_t data[1] = { rate };
+  writeReg(REG_UV_MEASUREMENT_RATE, data, 1);
+}
+
+/**
+ * @brief  Write raw bytes to a register (I²C or Modbus)
+ * @param  reg    register address
+ * @param  pBuf   pointer to the data to write
+ * @param  size   number of bytes to write
+ * @return I²C: result of endTransmission(); Modbus: exception code
+ */
+uint8_t DFRobot_EnvironmentalSensor::writeReg(uint16_t reg, const void *pBuf, uint8_t size) {
+  const uint8_t* buf = (const uint8_t*)pBuf;
+  if (_pWire) {
+    uint8_t _reg = reg * 2;
+    _pWire->begin();
+    _pWire->beginTransmission(_addr);
+    _pWire->write(_reg);
+    for (uint8_t i = 0; i < size; i++) {
+      _pWire->write(buf[i]);
+    }
+    return _pWire->endTransmission();
+  } else {
+    // For Modbus RTU: writeHoldingRegister(id, reg, value)
+    // Here we assume size is even and write as uint16_t blocks:
+    return this->writeHoldingRegister(_addr, reg, (uint16_t*)buf, size / 2);
+  }
+}
+
 
 bool  DFRobot_EnvironmentalSensor::detectDeviceAddress(uint8_t addr)
 {
@@ -211,4 +251,6 @@ bool  DFRobot_EnvironmentalSensor::detectDeviceAddress(uint8_t addr)
       return true;
   }
   return false;
+  
+  
 }

@@ -8,13 +8,27 @@ static const char *const TAG = "dfrobot_envsensor";
 
 void DFRobotEnvSensor::setup() {
   sensor_ = new DFRobot_EnvironmentalSensor(0x22, &Wire);
+  ESP_LOGI(TAG, "Starting setup for DFRobot Environmental Sensor");
+
   if (sensor_->begin() != 0) {
     ESP_LOGE(TAG, "Failed to initialize DFRobot Environmental Sensor");
   } else {
     ESP_LOGI(TAG, "DFRobot Environmental Sensor initialized");
     delay(2000);  // Allow sensor to stabilize
+
+    // Optional UV configuration
+    if (this->uv_gain_.has_value())
+      sensor_->setUVGain(this->uv_gain_.value());
+    if (this->uv_resolution_.has_value())
+      sensor_->setUVResolution(this->uv_resolution_.value());
+    if (this->uv_rate_.has_value())
+      sensor_->setUVMeasurementRate(this->uv_rate_.value());
+
+   // this->set_update_interval(60000);  // Ensure update() is called every 60s
   }
 }
+
+
 
 void DFRobotEnvSensor::update() {
   if (sensor_ == nullptr)
@@ -23,9 +37,9 @@ void DFRobotEnvSensor::update() {
   float t = sensor_->getTemperature(TEMP_C);
   float h = sensor_->getHumidity();
   float p = sensor_->getAtmospherePressure(HPA);
-  float l = sensor_->getLuminousIntensity()* 4.7f;
-  float elev = sensor_->getElevation();
-
+  float l = sensor_->getLuminousIntensity();
+  float elev = sensor_->getElevation(); 
+ 
   // Updated UV calculation inline based on Python logic
   float u = 0.0f;
   uint8_t buffer[2];
@@ -39,7 +53,7 @@ void DFRobotEnvSensor::update() {
   } else {
     u = (voltage - 0.99f) * (15.0f / (2.9f - 0.99f));
   }
-
+ 
   ESP_LOGD(TAG, "Read values: T=%.2f°C H=%.2f%% P=%.1f hPa L=%.1f lx UV=%.2f Elev=%.1f m", t, h, p, l, u, elev);
 
   if (temperature_sensor_ != nullptr)

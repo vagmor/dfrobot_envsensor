@@ -66,6 +66,9 @@ public:
 #define REG_HUMIDITY              0x000B ///< Register for protocol transition adapter
 #define REG_ATMOSPHERIC_PRESSURE  0x000C ///< Register for protocol transition adapter
 #define REG_ELEVATION             0x000D ///< Register for protocol transition adapter
+#define REG_UV_GAIN               0x11
+#define REG_UV_RESOLUTION         0x13
+#define REG_UV_MEASUREMENT_RATE   0x12
 
 
 
@@ -148,6 +151,13 @@ public:
 
 uint16_t getUltravioletRaw(); 
 void getUVRaw(uint8_t *buffer);
+void setUVGain(uint8_t gain);
+void setUVResolution(uint8_t resolution);
+void setUVMeasurementRate(uint8_t rate);
+
+uint8_t writeReg(uint16_t reg, const void *pBuf, uint8_t size);
+
+
 
 
 protected:

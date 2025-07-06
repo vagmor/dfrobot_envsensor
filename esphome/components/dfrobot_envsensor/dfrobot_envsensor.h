@@ -1,37 +1,40 @@
 #pragma once
 
 #include "esphome/core/component.h"
+#include "esphome/core/optional.h"
+#include "esphome/components/i2c/i2c.h"
 #include "esphome/components/sensor/sensor.h"
 #include "DFRobot_EnvironmentalSensor.h"
-#include "esphome/components/i2c/i2c.h"
-
 
 namespace esphome {
 namespace dfrobot_envsensor {
 
-class DFRobotEnvSensor : public PollingComponent {
+class DFRobotEnvSensor : public PollingComponent, public i2c::I2CDevice {
  public:
-  DFRobotEnvSensor() : PollingComponent(60000) {}
+  // Inherit constructors to allow update_interval and I2C address from YAML
+  using PollingComponent::PollingComponent;
+  using i2c::I2CDevice::I2CDevice;
 
   void setup() override;
   void update() override;
 
-  // Sensor setters
   void set_temperature_sensor(sensor::Sensor *sensor) { temperature_sensor_ = sensor; }
   void set_humidity_sensor(sensor::Sensor *sensor) { humidity_sensor_ = sensor; }
   void set_pressure_sensor(sensor::Sensor *sensor) { pressure_sensor_ = sensor; }
   void set_light_sensor(sensor::Sensor *sensor) { light_sensor_ = sensor; }
   void set_uv_index_sensor(sensor::Sensor *sensor) { uv_index_sensor_ = sensor; }
   void set_elevation_sensor(sensor::Sensor *sensor) { elevation_sensor_ = sensor; }
-  void set_i2c_bus(esphome::i2c::I2CBus *bus) { this->i2c_bus_ = bus; }
-  void set_i2c_address(uint8_t address) { this->address_ = address; }
 
+  void set_uv_gain(uint8_t gain) { uv_gain_ = gain; }
+  void set_uv_resolution(uint8_t resolution) { uv_resolution_ = resolution; }
+  void set_uv_rate(uint8_t rate) { uv_rate_ = rate; }
 
  protected:
   DFRobot_EnvironmentalSensor *sensor_{nullptr};
-  esphome::i2c::I2CBus *i2c_bus_{nullptr};
-  uint8_t address_;
 
+  optional<uint8_t> uv_gain_;
+  optional<uint8_t> uv_resolution_;
+  optional<uint8_t> uv_rate_;
 
   sensor::Sensor *temperature_sensor_{nullptr};
   sensor::Sensor *humidity_sensor_{nullptr};
