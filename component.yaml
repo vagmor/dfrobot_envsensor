@@ -1,4 +1,0 @@
-name: DFRobot EnvSensor
-domain: dfrobot_envsensor
-platforms: ["sensor"]
-dependencies: ["i2c"]
