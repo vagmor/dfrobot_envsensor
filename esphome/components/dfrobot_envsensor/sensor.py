@@ -30,9 +30,11 @@ CONF_ELEVATION = "elevation"
 CONF_UV_GAIN = "uv_gain"
 CONF_UV_RESOLUTION = "uv_resolution"
 CONF_UV_RATE = "uv_rate"
+CONF_LIGHT_GAIN = "light_gain"
+CONF_LIGHT_INTEGRATION_TIME = "light_integration_time"
 
 # Load the C++ namespace
-dfrobot_envsensor_ns = cg.esphome_ns.namespace("dfrobot_envsensor")
+[dfrobot_envsensor_ns] = cg.esphome_ns.namespace("dfrobot_envsensor") if False else (cg.esphome_ns.namespace("dfrobot_envsensor"),)
 DFRobotEnvSensor = dfrobot_envsensor_ns.class_(
     "DFRobotEnvSensor", cg.PollingComponent, i2c.I2CDevice
 )
@@ -87,6 +89,9 @@ CONFIG_SCHEMA = cv.Schema({
     cv.Optional(CONF_UV_GAIN): cv.int_range(min=0, max=255),
     cv.Optional(CONF_UV_RESOLUTION): cv.int_range(min=0, max=255),
     cv.Optional(CONF_UV_RATE): cv.int_range(min=0, max=255),
+    # New light sensor calibration parameters
+    cv.Optional(CONF_LIGHT_GAIN, default=1.0): cv.float_range(min=0.125, max=2.0),
+    cv.Optional(CONF_LIGHT_INTEGRATION_TIME, default=100): cv.int_range(min=25, max=800),
     cv.Required(CONF_UPDATE_INTERVAL): cv.update_interval,
 }).extend(i2c.i2c_device_schema(None))
 
@@ -111,6 +116,9 @@ async def to_code(config):
     if CONF_LIGHT in config:
         sens = await sensor.new_sensor(config[CONF_LIGHT])
         cg.add(var.set_light_sensor(sens))
+    # Pass through light calibration
+    cg.add(var.set_light_gain(config[CONF_LIGHT_GAIN]))
+    cg.add(var.set_light_integration_time(config[CONF_LIGHT_INTEGRATION_TIME]))
 
     if CONF_UV_INDEX in config:
         sens = await sensor.new_sensor(config[CONF_UV_INDEX])

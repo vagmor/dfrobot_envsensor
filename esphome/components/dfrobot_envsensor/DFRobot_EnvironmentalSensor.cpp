@@ -235,6 +235,12 @@ uint8_t DFRobot_EnvironmentalSensor::writeReg(uint16_t reg, const void *pBuf, ui
   }
 }
 
+// Read raw luminous-intensity register
+uint16_t DFRobot_EnvironmentalSensor::getLuminousRaw() {
+  uint8_t buf[2];
+  this->readReg(REG_LUMINOUS_INTENSITY, buf, 2);
+  return (uint16_t)buf[0] << 8 | buf[1];
+}
 
 bool  DFRobot_EnvironmentalSensor::detectDeviceAddress(uint8_t addr)
 {

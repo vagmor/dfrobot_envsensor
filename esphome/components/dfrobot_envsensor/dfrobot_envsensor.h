@@ -28,7 +28,21 @@ class DFRobotEnvSensor : public PollingComponent, public i2c::I2CDevice {
   void set_uv_gain(uint8_t gain) { uv_gain_ = gain; }
   void set_uv_resolution(uint8_t resolution) { uv_resolution_ = resolution; }
   void set_uv_rate(uint8_t rate) { uv_rate_ = rate; }
+  
 
+  /**
+   * @brief Set a calibration multiplier on raw light readings.
+   * @param gain  e.g. 1.0 (no change), 2.0 (double), 0.5 (half)
+   */
+  void set_light_gain(float gain) { this->light_gain_ = gain; }
+
+  /**
+   * @brief Set the actual sensor integration time (ms) for scaling.
+   * @param ms  integration time in milliseconds (default: 100)
+   */
+  void set_light_integration_time(uint16_t ms) { this->light_integration_time_ms_ = ms; }
+
+  
  protected:
   DFRobot_EnvironmentalSensor *sensor_{nullptr};
 
@@ -40,6 +54,8 @@ class DFRobotEnvSensor : public PollingComponent, public i2c::I2CDevice {
   sensor::Sensor *humidity_sensor_{nullptr};
   sensor::Sensor *pressure_sensor_{nullptr};
   sensor::Sensor *light_sensor_{nullptr};
+  optional<float> light_gain_;
+  optional<uint16_t> light_integration_time_ms_;
   sensor::Sensor *uv_index_sensor_{nullptr};
   sensor::Sensor *elevation_sensor_{nullptr};
 };

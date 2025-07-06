@@ -157,7 +157,10 @@ void setUVMeasurementRate(uint8_t rate);
 
 uint8_t writeReg(uint16_t reg, const void *pBuf, uint8_t size);
 
-
+  /**
+   * @brief Read raw luminous intensity register (two-byte, uncalibrated)
+   */
+  uint16_t getLuminousRaw();
 
 
 protected:

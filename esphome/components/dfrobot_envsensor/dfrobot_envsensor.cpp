@@ -37,7 +37,14 @@ void DFRobotEnvSensor::update() {
   float t = sensor_->getTemperature(TEMP_C);
   float h = sensor_->getHumidity();
   float p = sensor_->getAtmospherePressure(HPA);
-  float l = sensor_->getLuminousIntensity();
+  // Raw luminous reading + calibration
+  uint16_t raw = sensor_->getLuminousRaw();
+  float l = (float)raw;
+  if (this->light_gain_.has_value())
+    l *= this->light_gain_.value();
+  if (this->light_integration_time_ms_.has_value())
+    l *= (this->light_integration_time_ms_.value() / 100.0f);
+
   float elev = sensor_->getElevation(); 
  
   // Updated UV calculation inline based on Python logic
