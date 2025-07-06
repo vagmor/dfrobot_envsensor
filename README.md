@@ -19,7 +19,8 @@ It exposes the following sensors:
 This sensor module internally integrates:
 - SHTC3 (temperature and humidity)
 - BMP280 (pressure)
-- LTR390 (UV and ambient light)
+- LTR390 (UV Index)
+- VEML7700 (Ambient light)
 
 ## 📦 Installation
 
