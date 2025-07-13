@@ -94,7 +94,7 @@ sensor:
       accuracy_decimals: 1
 
     elevation:
-      name: "Grow Tent Elevation"
+      name: "Elevation"
       accuracy_decimals: 1
 
     # Calibration overrides (optional)
