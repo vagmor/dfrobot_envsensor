@@ -74,23 +74,23 @@ sensor:
     update_interval: 60s
 
     temperature:
-      name: "Grow Tent Temperature"
+      name: "Temperature"
       accuracy_decimals: 1
 
     humidity:
-      name: "Grow Tent Humidity"
+      name: "Humidity"
       accuracy_decimals: 1
 
     pressure:
-      name: "Grow Tent Pressure"
+      name: "Pressure"
       accuracy_decimals: 1
 
     light:
-      name: "Grow Tent Light"
+      name: "Light"
       accuracy_decimals: 0
 
     uv_index:
-      name: "Grow Tent UV Index"
+      name: "UV Index"
       accuracy_decimals: 1
 
     elevation:
